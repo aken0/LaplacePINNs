@@ -12,7 +12,7 @@ def diff(u,x,order=1):
     return grad
 
 def f_u(x,t,net):
-    input = torch.hstack([x,t]).requires_grad_()#.to(_device)
+    input = torch.hstack([x,t]).requires_grad_()
     u = net(input)
     u_x = diff(u,x)
     u_t = diff(u,t)
@@ -21,7 +21,7 @@ def f_u(x,t,net):
 
 def b_u(x,t,net):
     _device = next(net.parameters()).device
-    input = torch.hstack([x,t]).requires_grad_()#.to(_device)
+    input = torch.hstack([x,t]).requires_grad_()
     u=net(input)
     u_star=torch.as_tensor([-torch.sin(i*np.pi) if j==0 else 0. for i,j in zip(x,t)])[:,None].to(_device)
     return u-u_star
@@ -52,19 +52,9 @@ optimizer = torch.optim.Adam(model.parameters(),weight_decay=1e-2)
 
 iters=10000
 N_col=1000
-use_grid=False
-
-train_error=[]
-test_error=[]
-mse_fs=[]
-mse_us=[]
-
 x=x.flatten()[:,None]
 t=t.flatten()[:,None]
 data_grid_used=data_grid.to(device).requires_grad_()
-
-x_bc = torch.as_tensor(x,device=device).float()
-t_bc = torch.as_tensor(t,device=device).float()
 u_bc = torch.as_tensor(u_star,device=device).float().requires_grad_()
 
 
@@ -103,14 +93,9 @@ print('\nPosterior Mean:',post_mean,'\nPosterior Variance:',post_variance)
 
 ###plotting
 from scipy.interpolate import griddata
-import matplotlib.gridspec as gridspec
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-plt.figure(dpi=120,figsize=(9,11))
 U_std = griddata(X_exact, post_variance.flatten().cpu().detach(), (X, T), method='nearest')
-gs0 = gridspec.GridSpec(1, 2)
-gs0.update(top=1-0.06, bottom=1-1.0/3.0+0.06, left=0.15, right=0.85, wspace=0)
-ax = plt.subplot(gs0[:, :])
-
+fig,ax = plt.subplots(1,1,dpi=120,figsize=(8,3))
 h = ax.imshow(((U_std)).T, interpolation='nearest', cmap='rainbow', extent=[t.min(), t.max(), x.min(), x.max()], origin='lower', aspect='auto')
 divider = make_axes_locatable(ax)
 cax = divider.append_axes("right", size="5%", pad=0.05)
@@ -118,6 +103,6 @@ plt.colorbar(h, cax=cax)
 
 ax.set_xlabel('$t$')
 ax.set_ylabel('$x$')
-plt.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=0, hspace=0)
+#plt.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=0, hspace=0)
 ax.plot(t_col.detach().cpu(),x_col.detach().cpu(), 'kx',  markersize = 1, clip_on = False)
 plt.show()

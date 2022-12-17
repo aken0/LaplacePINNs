@@ -56,6 +56,7 @@ class Laplace_s3:
         self.n_params=len(torch.cat([p.flatten() for p in model.parameters() if p.requires_grad]))
         ###fit 
         self.model.eval()
+        self.mean = torch.nn.utils.parameters_to_vector(self.model.parameters()).detach()
 
         with torch.no_grad():
             try:
