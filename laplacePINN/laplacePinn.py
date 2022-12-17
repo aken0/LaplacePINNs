@@ -110,8 +110,8 @@ class Laplace_s3:
 
                 self.prior_precision=log_prior.exp()
                 c=len(X_f) * torch.log(self.sigma_f*np.sqrt(2*np.pi)) + len(X_b) * torch.log(self.sigma_b*np.sqrt(2*np.pi))
-                H_factor_f=  1 / (self.sigma_f.square())
-                H_factor_b=  1 / (self.sigma_b.square())
+                H_factor_f=  1 / (2*self.sigma_f.square())
+                H_factor_b=  1 / (2*self.sigma_b.square())
 
                 H_f_scale=len(X_f)
                 H_b_scale=len(X_b)
@@ -121,7 +121,10 @@ class Laplace_s3:
                 self.post_det=self.posterior_precision.slogdet()[1]
                 self.prior_det=(self.prior_precision * torch.ones(self.n_params, device=self._device)).log().sum()
                 self.log_det_ratio =  self.post_det - self.prior_det
-                neg_marglik= -(self.log_likelihood - 0.5 * (self.log_det_ratio))
+                self.prior_mean=torch.zeros_like(self.mean)
+                delta = (self.mean - self.prior_mean)
+                self.scatter= (delta * self.prior_precision) @ delta
+                neg_marglik= -(self.log_likelihood - 0.5 * (self.log_det_ratio + self.scatter))
 
                 neg_marglik.backward()
                 hyper_optimizer.step() 
