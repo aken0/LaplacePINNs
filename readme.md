@@ -1,2 +1,2 @@
 # Laplace PINNs
-## Uncertainty Quantification in Physics-informed neural networks using Laplace approximations
+## Uncertainty Quantification in physics-informed neural networks using Laplace approximations
