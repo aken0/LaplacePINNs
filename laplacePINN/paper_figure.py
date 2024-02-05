@@ -13,7 +13,7 @@ from scipy.stats import chi2
 from tueplots import figsizes, bundles, axes
 
 
-plt.rcParams.update(bundles.iclr2024())
+plt.rcParams.update(bundles.iclr2024(nrows=0.98, ncols=1))
 plt.rcParams.update(axes.lines())
 plt.rcParams.update(axes.grid())
 plt.rcParams.update(axes.spines())
